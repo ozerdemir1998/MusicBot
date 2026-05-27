@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+*.log
+yt-dlp.exe
+yt-dlp
+README.md
+.gitignore
+.dockerignore

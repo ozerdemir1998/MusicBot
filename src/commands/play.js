@@ -138,6 +138,7 @@ module.exports = {
         if (wasEmpty) playNextSong(queue, queues);
 
         // Geri kalan şarkıları arka planda çöz
+        queue.isLoading = true;
         (async () => {
           for (let i = 1; i < result.tracks.length; i++) {
             try {
@@ -145,6 +146,7 @@ module.exports = {
               queue.addSong(song);
             } catch (_) {}
           }
+          queue.isLoading = false;
         })();
         return;
       }

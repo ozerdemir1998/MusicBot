@@ -9,7 +9,8 @@ class MusicQueue {
     this.voiceConnection = null;
     this.audioPlayer = createAudioPlayer();
     this.paused = false;
-    this.currentProcess = null; // aktif yt-dlp process
+    this.currentProcess = null;
+    this.isLoading = false; // arka planda Spotify şarkıları yükleniyorsa true
   }
 
   addSong(song) {

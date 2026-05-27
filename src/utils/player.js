@@ -146,8 +146,12 @@ async function playNextSong(queue, queues) {
 
     // Listener'ları play() ÖNCE kur
     queue.audioPlayer.removeAllListeners(AudioPlayerStatus.Idle);
-    queue.audioPlayer.once(AudioPlayerStatus.Idle, () => {
+    queue.audioPlayer.once(AudioPlayerStatus.Idle, async () => {
       queue.currentSong = null;
+      // Kuyruk boş ama Spotify yüklemesi sürüyorsa bekle
+      while (queue.songs.length === 0 && queue.isLoading) {
+        await new Promise(r => setTimeout(r, 400));
+      }
       const next = queue.shiftSong();
       if (next) {
         queue.currentSong = next;

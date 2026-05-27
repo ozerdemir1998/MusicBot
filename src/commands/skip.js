@@ -26,11 +26,30 @@ module.exports = {
     queue.audioPlayer.removeAllListeners('error');
 
     if (next) {
-      // Eski process'i öldür, doğrudan yeni şarkıya geç — stop() kullanma
-      // stop() → Idle event → race condition yerine audioPlayer.play() doğrudan üzerine yazar
       queue.currentSong = next;
       await interaction.reply(`**${skipped}** atlandı.`);
       playNextSong(queue, queues);
+    } else if (queue.isLoading) {
+      // Spotify yüklemesi sürüyor, sonraki şarkıyı bekle
+      await interaction.reply(`**${skipped}** atlandı. Sonraki şarkı yükleniyor...`);
+      queue.currentSong = null;
+      queue.killCurrentProcess();
+      queue.audioPlayer.stop(true);
+      // Şarkı gelene kadar bekle, sonra çal
+      (async () => {
+        while (queue.songs.length === 0 && queue.isLoading) {
+          await new Promise(r => setTimeout(r, 400));
+        }
+        const waited = queue.shiftSong();
+        if (waited) {
+          queue.currentSong = waited;
+          playNextSong(queue, queues);
+        } else {
+          queue.textChannel.send('Kuyruk bitti. Görüşürüz!').catch(() => {});
+          queue.destroy();
+          queues.delete(interaction.guildId);
+        }
+      })();
     } else {
       queue.killCurrentProcess();
       queue.currentSong = null;

@@ -195,4 +195,17 @@ async function playNextSong(queue, queues) {
   }
 }
 
-module.exports = { resolveQuery, resolvePlaylist, isPlaylistURL, playNextSong, formatDuration };
+async function spotifyTrackToSong(meta, requestedBy) {
+  const query = `${meta.title} ${meta.artist}`;
+  const result = await YouTube.searchOne(query);
+  if (!result?.url) throw new Error(`YouTube'da bulunamadı: ${query}`);
+  return {
+    title: meta.title,
+    url: result.url,
+    duration: meta.duration,
+    thumbnail: meta.thumbnail || result.thumbnail?.url || null,
+    requestedBy,
+  };
+}
+
+module.exports = { resolveQuery, resolvePlaylist, isPlaylistURL, playNextSong, formatDuration, spotifyTrackToSong };

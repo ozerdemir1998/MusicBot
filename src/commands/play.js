@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { joinVoiceChannel, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
 const MusicQueue = require('../structures/MusicQueue');
 const { resolveQuery, resolvePlaylist, isPlaylistURL, playNextSong, spotifyTrackToSong } = require('../utils/player');
-const { isSpotifyURL, getSpotifyType, extractId, getTrackMeta, resolveSpotifyPlaylist, resolveSpotifyAlbum } = require('../utils/spotify');
+const { isSpotifyURL, getSpotifyType, getTrackMeta, resolveSpotifyPlaylist, resolveSpotifyAlbum } = require('../utils/spotify');
 
 function ensureQueue(interaction, queues, voiceChannel) {
   let queue = queues.get(interaction.guildId);
@@ -66,7 +66,7 @@ module.exports = {
       if (type === 'track') {
         let meta;
         try {
-          meta = await getTrackMeta(extractId(query));
+          meta = await getTrackMeta(query);
         } catch (err) {
           console.error('[play/spotify/track]', err.message);
           return interaction.editReply('Spotify şarkısı yüklenemedi.');

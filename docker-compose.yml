@@ -4,7 +4,9 @@ services:
   music-bot:
     build: .
     container_name: discord-music-bot
-    env_file: .env
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - CLIENT_ID=${CLIENT_ID}
     restart: unless-stopped
     logging:
       driver: "json-file"

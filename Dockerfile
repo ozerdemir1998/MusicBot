@@ -1,30 +1,22 @@
 FROM node:20-alpine
 
-# ffmpeg (ses işleme) + curl (yt-dlp indirme)
-RUN apk add --no-cache ffmpeg curl
+# ffmpeg + python3 (yt-dlp için)
+RUN apk add --no-cache ffmpeg python3 py3-pip
 
-# yt-dlp musl binary — Alpine (musl libc) için gerekli, glibc binary çalışmaz
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "aarch64" ]; then \
-      FILE="yt-dlp_linux_musl_aarch64"; \
-    else \
-      FILE="yt-dlp_linux_musl"; \
-    fi && \
-    curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/${FILE}" \
-    -o /usr/local/bin/yt-dlp \
-    && chmod a+rx /usr/local/bin/yt-dlp
+# yt-dlp pip ile kur — standalone binary Alpine'da arch/libc uyumsuzluğu nedeniyle çalışmaz
+RUN pip3 install --no-cache-dir --break-system-packages yt-dlp
 
 WORKDIR /app
 
-# Bağımlılık dosyalarını önce kopyala — layer cache'i kullanmak için
+# Bağımlılık dosyalarını önce kopyala — layer cache için
 COPY package*.json ./
 RUN npm ci --only=production
 
-# Uygulama kaynak kodlarını kopyala
+# Kaynak kodları kopyala
 COPY src/ ./src/
 COPY deploy-commands.js ./
 
-# Güvenlik: root kullanıcısı yerine node kullanıcısıyla çalış
+# Güvenlik: root yerine node kullanıcısı
 USER node
 
 CMD ["node", "src/index.js"]
